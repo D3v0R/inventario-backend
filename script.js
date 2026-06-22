@@ -135,3 +135,41 @@ btnGuardar.addEventListener('click', async () => {
     btnAccion.click();
 });
 });
+function renderizar(datos) {
+    contenedor.innerHTML = "";
+    datos.forEach(user => {
+        contenedor.innerHTML += `
+            <div class="tarjeta-usuario" style="border: 1px solid #333; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                <h3>${user.nombre}</h3>
+                <p>Rol: ${user.rol}</p>
+                <p style="font-size: 0.8em; color: #888;">ID: ${user._id}</p>
+                
+                <button class="btn-editar" onclick="editarUsuario('${user._id}', '${user.nombre}', '${user.rol}')">Editar</button>
+                <button class="btn-borrar" onclick="eliminarUsuario('${user._id}')">Eliminar</button>
+            </div>
+        `;
+    });
+}
+
+// Nueva función de Editar
+async function editarUsuario(id, nombreActual, rolActual) {
+    const nuevoNombre = prompt("Edita el nombre:", nombreActual);
+    const nuevoRol = prompt("Edita el rol (Estudiante/Docente/Administrador):", rolActual);
+
+    if (nuevoNombre && nuevoRol) {
+        try {
+            const res = await fetch(`${API_URL}/actualizar/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: nuevoNombre, rol: nuevoRol })
+            });
+            
+            if (res.ok) {
+                alert("Usuario actualizado correctamente");
+                btnAccion.click(); // Refresca la lista
+            }
+        } catch (err) {
+            console.error("Error al actualizar:", err);
+        }
+    }
+}
