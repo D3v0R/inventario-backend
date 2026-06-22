@@ -6,21 +6,35 @@ const btnGuardar = document.getElementById('btn-guardar');
 const btnBuscar = document.getElementById('btn-buscar');
 const contenedor = document.getElementById('contenedor-datos');
 
-// 1. Función para renderizar los datos
+// 1. Renderizar con delegación de eventos
 function renderizar(datos) {
     contenedor.innerHTML = "";
     datos.forEach(user => {
-        contenedor.innerHTML += `
-            <div class="tarjeta-usuario" style="background: #2c2c2c; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 5px solid #bb86fc;">
-                <h3>${user.nombre}</h3>
-                <p>Rol: ${user.rol}</p>
-                <p style="font-size: 0.7em; color: #888;">ID: ${user._id}</p>
-                <button class="btn-editar" onclick="editarUsuario('${user._id}', '${user.nombre}', '${user.rol}')">Editar</button>
-                <button class="btn-borrar" onclick="eliminarUsuario('${user._id}')">Eliminar</button>
-            </div>
+        const div = document.createElement('div');
+        div.className = "tarjeta-usuario";
+        div.style = "background: #2c2c2c; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 5px solid #bb86fc; color: white;";
+        
+        div.innerHTML = `
+            <h3>${user.nombre}</h3>
+            <p>Rol: ${user.rol}</p>
+            <p style="font-size: 0.7em; color: #888;">ID: ${user._id}</p>
+            <button class="btn-editar" data-id="${user._id}" data-nombre="${user.nombre}" data-rol="${user.rol}">Editar</button>
+            <button class="btn-borrar" data-id="${user._id}">Eliminar</button>
         `;
+        contenedor.appendChild(div);
     });
 }
+
+// Escuchar clics en el contenedor (Delegación)
+contenedor.addEventListener('click', (e) => {
+    if (e.target.classList.contains('btn-editar')) {
+        const { id, nombre, rol } = e.target.dataset;
+        editarUsuario(id, nombre, rol);
+    }
+    if (e.target.classList.contains('btn-borrar')) {
+        eliminarUsuario(e.target.dataset.id);
+    }
+});
 
 // 2. Cargar todos
 btnAccion.addEventListener('click', async () => {
@@ -58,7 +72,8 @@ async function eliminarUsuario(id) {
 async function editarUsuario(id, nombreActual, rolActual) {
     const nuevoNombre = prompt("Edita el nombre:", nombreActual);
     const nuevoRol = prompt("Edita el rol:", rolActual);
-    if (nuevoNombre && nuevoRol) {
+    
+    if (nuevoNombre !== null && nuevoRol !== null) {
         await fetch(`${API_URL}/actualizar/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
