@@ -53,6 +53,30 @@ app.get('/buscar/:nombre', async (req, res) => {
     res.json(resultados);
 });
 
+// --- RUTA AGREGADA PARA ACTUALIZAR ---
+app.put('/actualizar/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nombre, rol } = req.body;
+
+        const usuarioActualizado = await Usuario.findByIdAndUpdate(
+            id, 
+            { nombre, rol }, 
+            { new: true } // Devuelve el documento actualizado
+        );
+
+        if (!usuarioActualizado) {
+            return res.status(404).json({ mensaje: "Usuario no encontrado" });
+        }
+
+        res.json(usuarioActualizado);
+    } catch (error) {
+        console.error("Error al actualizar:", error);
+        res.status(500).json({ mensaje: "Error interno del servidor al actualizar" });
+    }
+});
+// --------------------------------------
+
 // 4. Iniciar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
